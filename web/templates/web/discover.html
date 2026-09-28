@@ -1,0 +1,181 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block title %}Discover | NextTrack{% endblock %}
+
+{% block content %}
+<div class="desk">
+
+  <section class="panel seeds" aria-labelledby="seeds-h">
+    <div class="panel-head">
+      <h2 id="seeds-h">Your tracks</h2>
+      <div class="panel-head-right">
+        <button type="button" class="link-quiet" id="clear-picks" hidden>Clear</button>
+        <span class="counter" id="seed-counter">0 of 5</span>
+      </div>
+    </div>
+    <p class="lede" id="seeds-lede">Pick up to five songs you like. NextTrack works out what fits next.</p>
+    <div class="transport" role="group" aria-label="Step through playable songs" id="queue-transport">
+      <button type="button" class="btn btn-small" id="queue-prev" hidden>Previous</button>
+      <button type="button" class="btn btn-small" id="queue-next" hidden>Next</button>
+    </div>
+    <div class="mode-switch" role="group" aria-label="How NextTrack uses your songs">
+      <button type="button" id="mode-blend" aria-pressed="true">Blend my picks</button>
+      <button type="button" id="mode-radio" aria-pressed="false">Radio</button>
+    </div>
+
+    <div class="search" role="search">
+      <label class="sr" for="seed-search">Search songs or artists</label>
+      <input id="seed-search" class="field" type="search" autocomplete="off" placeholder="Search a song or artist" aria-controls="search-results">
+      <ul id="search-results" class="search-results" hidden></ul>
+    </div>
+
+    <ul id="seed-tray" class="seed-tray" aria-label="Selected tracks"></ul>
+    <p id="seed-empty" class="seed-empty">Nothing picked yet. Search above, or start from a suggestion.</p>
+
+    <div class="suggest">
+      <h3>Suggestions <button type="button" class="text-btn" id="shuffle">Shuffle</button></h3>
+      <ul id="suggestions"></ul>
+    </div>
+  </section>
+
+  <section class="results" aria-labelledby="results-h">
+    <div id="hero" class="hero-wrap">
+      <div class="hero">
+        <h1 id="results-h">Pick a song you love. We line up what plays next.</h1>
+      </div>
+      <p class="hero-copy">Every recommendation shows how it was scored: genre, mood, tempo and decade, so you can see why it made the list and change what matters.</p>
+    </div>
+
+    <div class="view-row">
+      <div class="view-switch" role="group" aria-label="Show recommendations as">
+        <button type="button" id="view-list" aria-pressed="true">List</button>
+        <button type="button" id="view-map" aria-pressed="false">Map</button>
+        <button type="button" id="view-bridge" aria-pressed="false">Bridge</button>
+      </div>
+    </div>
+
+    <div id="results-wrap" hidden>
+      <div class="results-head">
+        <div>
+          <h1 id="results-title">Play next</h1>
+          <p class="sub" id="results-sub"></p>
+        </div>
+        <button type="button" class="btn btn-small" id="play-all" hidden aria-pressed="false">Play all</button>
+        <p class="status" id="status" role="status"></p>
+      </div>
+      <div class="legend" id="score-legend" aria-label="Score colours">
+        <span style="--c: var(--genre)"><i></i>Genre</span>
+        <span style="--c: var(--mood)"><i></i>Mood</span>
+        <span style="--c: var(--tempo)"><i></i>Tempo</span>
+        <span style="--c: var(--decade)"><i></i>Decade</span>
+      </div>
+      <div id="notice" hidden></div>
+      <ol id="recs" class="recs"></ol>
+      <div class="bridge-panel" id="bridge-panel" hidden>
+        <p class="lede">Choose a start and an end song. NextTrack builds a playlist of a chosen length that travels between them, so no step feels abrupt.</p>
+        <div class="bridge-form">
+          <div class="bridge-slot">
+            <span class="bridge-label">Start</span>
+            <div class="search" id="bridge-from-search"><input type="search" placeholder="Search a song or artist" aria-label="Bridge start song" autocomplete="off"><ul hidden></ul></div>
+            <div class="bridge-chosen" id="bridge-from-chosen" hidden></div>
+          </div>
+          <div class="bridge-slot">
+            <span class="bridge-label">End</span>
+            <div class="search" id="bridge-to-search"><input type="search" placeholder="Search a song or artist" aria-label="Bridge end song" autocomplete="off"><ul hidden></ul></div>
+            <div class="bridge-chosen" id="bridge-to-chosen" hidden></div>
+          </div>
+          <label class="bridge-length">Songs
+            <select id="bridge-length">
+              <option value="5">5</option>
+              <option value="7" selected>7</option>
+              <option value="9">9</option>
+            </select>
+          </label>
+          <button type="button" class="btn btn-primary" id="bridge-build" disabled>Build the bridge</button>
+        </div>
+        <p class="status" id="bridge-status"></p>
+        <ol class="recs" id="bridge-hops"></ol>
+      </div>
+      <div class="taste-map" id="taste-map" hidden>
+        <svg id="tm-svg" role="img" aria-label="Taste map. Each dot is a song, and songs that sound alike sit close together. Your songs and their recommendations are highlighted, with lines to each recommendation. The list view has the same recommendations in text.">
+          <g id="tm-trail"></g><g id="tm-links"></g><g id="tm-dots"></g><g id="tm-labels"></g>
+        </svg>
+        <p class="tm-hint">Each dot is a song, placed by how NextTrack scores it: the closer two dots, the more alike. Select a dot to add it.</p>
+        <p class="tm-note" id="tm-note" hidden></p>
+        <div class="tm-legend" id="tm-legend" aria-label="Highlight a genre family"></div>
+        <div class="tm-tip" id="tm-tip" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <details class="panel mix" id="mix" open>
+    <summary><h2>Tune the mix</h2></summary>
+    <div class="mix-body">
+      <p class="lede">Decide what matters when comparing songs. Shares always add up to 100%.</p>
+      <div class="presets" role="group" aria-label="Presets">
+        <button type="button" class="btn" data-preset="balanced" aria-pressed="true">Balanced</button>
+        <button type="button" class="btn" data-preset="genre" aria-pressed="false">Stay in genre</button>
+        <button type="button" class="btn" data-preset="feel" aria-pressed="false">Match the feel</button>
+        <button type="button" class="btn" data-preset="era" aria-pressed="false">Same era</button>
+      </div>
+
+      <div class="channel genre">
+        <label for="w-genre">Genre</label><output id="o-genre" for="w-genre">45%</output>
+        <input id="w-genre" type="range" min="0" max="100" value="45" data-feature="genre">
+        <p class="hint">Shared genre tags. Rarer tags count for more than "rock" or "pop".</p>
+      </div>
+      <div class="channel mood">
+        <label for="w-mood">Mood</label><output id="o-mood" for="w-mood">25%</output>
+        <input id="w-mood" type="range" min="0" max="100" value="25" data-feature="mood">
+        <p class="hint">How the song feels. Euphoric sits near happy, far from melancholic.</p>
+      </div>
+      <div class="channel tempo">
+        <label for="w-tempo">Tempo</label><output id="o-tempo" for="w-tempo">15%</output>
+        <input id="w-tempo" type="range" min="0" max="100" value="15" data-feature="tempo">
+        <p class="hint">Beats per minute. Half and double time still count as a groove match.</p>
+      </div>
+      <div class="channel decade">
+        <label for="w-decade">Decade</label><output id="o-decade" for="w-decade">15%</output>
+        <input id="w-decade" type="range" min="0" max="100" value="15" data-feature="decade">
+        <p class="hint">How close the release years are.</p>
+      </div>
+
+      <div class="opts">
+        <label class="stack" for="o-variety"><span>Variety: <b id="variety-out" class="tnum">25%</b></span>
+          <input id="o-variety" type="range" min="0" max="100" value="25" style="--c: var(--chalk)">
+        </label>
+        <div class="opts-row">
+          <label class="stack" for="o-artist"><span>Songs per artist</span>
+            <select id="o-artist" class="field">
+              <option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="10">No limit</option>
+            </select>
+          </label>
+          <label class="stack" for="o-k"><span>List length</span>
+            <select id="o-k" class="field">
+              <option value="5">5</option><option value="10" selected>10</option><option value="20">20</option><option value="30">30</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <span class="muted" style="font-size:.9rem;display:block;margin-bottom:6px">Combine several tracks</span>
+          <div class="seg" role="group" aria-label="Combine several tracks">
+            <button type="button" id="agg-mean" aria-pressed="true">Blend them</button>
+            <button type="button" id="agg-max" aria-pressed="false">Closest to any</button>
+          </div>
+        </div>
+        <label class="check" for="o-personalise">
+          <input id="o-personalise" type="checkbox">
+          <span>Learn from my likes and skips<small>Liked songs act as extra seeds; skipped ones and lookalikes drop down.</small></span>
+        </label>
+      </div>
+    </div>
+  </details>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'web/js/tastemap.js' %}"></script>
+<script src="{% static 'web/js/bridge.js' %}"></script>
+<script src="{% static 'web/js/discover.js' %}"></script>
+{% endblock %}

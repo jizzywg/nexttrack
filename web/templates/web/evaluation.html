@@ -1,0 +1,56 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block title %}Evaluation | NextTrack{% endblock %}
+
+{% block content %}
+<div class="page">
+  <header>
+    <h1>How well does it work?</h1>
+    <p class="intro">Live numbers from the catalogue in your database. Compare the full model with versions that leave one feature out, and with simple baselines. The figures change when you add data.</p>
+  </header>
+
+  <section aria-labelledby="cat-h">
+    <h2 id="cat-h">The catalogue</h2>
+    <div class="stat-row" id="stats"></div>
+    <div class="two-col">
+      <div><h3>Songs per decade</h3><div class="bars" id="decades"></div></div>
+      <div><h3>Songs per mood</h3><div class="bars" id="moods"></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="cmp-h">
+    <h2 id="cmp-h">Model comparison</h2>
+    <div class="controls">
+      <label class="stack" for="e-k"><span>List length (k)</span>
+        <select id="e-k" class="field"><option>5</option><option selected>10</option><option>20</option></select>
+      </label>
+      <label class="stack" for="e-sample"><span>Seed tracks</span>
+        <select id="e-sample" class="field"><option>30</option><option selected>60</option><option>120</option><option>200</option></select>
+      </label>
+      <button class="btn btn-primary" id="run" type="button">Run again</button>
+    </div>
+    <p class="status" id="e-status" role="status" style="margin-top:12px"></p>
+    <div id="gt"></div>
+    <div class="table-wrap" id="table-wrap" hidden>
+      <table class="compare" id="compare"></table>
+    </div>
+    <div id="e-notes"></div>
+  </section>
+
+  <section class="prose" aria-labelledby="read-h">
+    <h2 id="read-h">Reading the table</h2>
+    <ul>
+      <li><b>nDCG, precision and hit rate</b> measure how many of the reference tracks (Last.fm similar tracks) appear in the top k. They need reference data. Values are the mean over seed tracks with a 95% bootstrap interval underneath.</li>
+      <li><b>Coverage</b> is the share of the catalogue that appears in at least one list. Low coverage means the same songs keep coming back.</li>
+      <li><b>Diversity</b> is one minus the average similarity between songs in a list. Higher means more varied lists.</li>
+      <li><b>Novelty</b> rises when lists lean on less popular songs. It needs listener counts from Last.fm.</li>
+      <li><b>ms</b> is the average time to build one list, measured on this machine.</li>
+    </ul>
+    <p class="muted">The reference data comes from listening behaviour, not from genre, mood, tempo or decade, so it is a fair outside check but not a perfect one. It rewards songs many people play together, which favours popular tracks.</p>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'web/js/evaluation.js' %}"></script>
+{% endblock %}

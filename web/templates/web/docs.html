@@ -1,0 +1,33 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block title %}API | NextTrack{% endblock %}
+
+{% block content %}
+<div class="page">
+  <header>
+    <h1>API</h1>
+    <p class="intro">Everything the web app does goes through this JSON API. Reading is open. Adding a track needs a token. Editing or deleting tracks is limited to staff accounts.</p>
+  </header>
+
+  <section class="prose" aria-labelledby="start-h">
+    <h2 id="start-h">Get recommendations in one request</h2>
+    <pre class="code" id="curl-example"></pre>
+    <p>Weights are relative and always normalised, so <code>{"genre": 3, "mood": 1}</code> means 75% genre and 25% mood. Features you leave out of <code>weights</code> count as zero.</p>
+
+    <h2>Authentication</h2>
+    <p>Create an account, then send the token with writes:</p>
+    <pre class="code" id="auth-example"></pre>
+    <p>Errors are JSON. Validation problems return status 400 with the field name as key, for example <code>{"seeds": ["Unknown track id(s): 999"]}</code>.</p>
+  </section>
+
+  <section aria-labelledby="ref-h">
+    <h2 id="ref-h">Endpoints</h2>
+    <p class="muted">Open an endpoint, change the request if you like, and send it from here.</p>
+    <div id="endpoints"></div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'web/js/docs.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "web/base.html" %}
+{% block title %}Method | NextTrack{% endblock %}
+
+{% block content %}
+<div class="page">
+  <header>
+    <h1>How NextTrack chooses</h1>
+    <p class="intro">NextTrack compares songs on four things it can measure without listening data: genre tags, mood, tempo and release decade. It blends them with weights you can change, then makes sure the list is not ten versions of the same song.</p>
+  </header>
+
+  <svg class="diagram" viewBox="0 0 900 200" role="img" aria-label="Pipeline: seed tracks are compared on four features, blended with weights, re-ranked for variety, and returned with reasons.">
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#aaa4d6"/></marker></defs>
+    <rect x="10" y="70" width="130" height="60" rx="10" fill="#1d1940" stroke="#39336a"/>
+    <text x="75" y="97" text-anchor="middle">Seed tracks</text><text x="75" y="115" text-anchor="middle" class="dust">1 to 5 songs</text>
+    <path d="M140 100 H190" stroke="#aaa4d6" fill="none" marker-end="url(#arrow)"/>
+    <g>
+      <rect x="196" y="10" width="200" height="34" rx="8" fill="#1d1940" stroke="#ff7a59"/><text x="296" y="32" text-anchor="middle">Genre tags (cosine)</text>
+      <rect x="196" y="56" width="200" height="34" rx="8" fill="#1d1940" stroke="#c792ff"/><text x="296" y="78" text-anchor="middle">Mood (valence, arousal)</text>
+      <rect x="196" y="102" width="200" height="34" rx="8" fill="#1d1940" stroke="#45d6c8"/><text x="296" y="124" text-anchor="middle">Tempo (log BPM ratio)</text>
+      <rect x="196" y="148" width="200" height="34" rx="8" fill="#1d1940" stroke="#ffc857"/><text x="296" y="170" text-anchor="middle">Decade (years apart)</text>
+    </g>
+    <path d="M396 100 H446" stroke="#aaa4d6" fill="none" marker-end="url(#arrow)"/>
+    <rect x="452" y="70" width="140" height="60" rx="10" fill="#1d1940" stroke="#39336a"/>
+    <text x="522" y="97" text-anchor="middle">Weighted blend</text><text x="522" y="115" text-anchor="middle" class="dust">your mix desk</text>
+    <path d="M592 100 H642" stroke="#aaa4d6" fill="none" marker-end="url(#arrow)"/>
+    <rect x="648" y="70" width="110" height="60" rx="10" fill="#1d1940" stroke="#39336a"/>
+    <text x="703" y="97" text-anchor="middle">Variety</text><text x="703" y="115" text-anchor="middle" class="dust">MMR + artist cap</text>
+    <path d="M758 100 H798" stroke="#aaa4d6" fill="none" marker-end="url(#arrow)"/>
+    <rect x="804" y="70" width="90" height="60" rx="10" fill="#f0ecff"/>
+    <text x="849" y="97" text-anchor="middle" style="fill:#14122b;font-weight:600">Play next</text><text x="849" y="115" text-anchor="middle" style="fill:#14122b;font-size:12px">with reasons</text>
+  </svg>
+
+  <h2>The four comparisons</h2>
+  <div class="split two">
+    <div class="feature" style="--c: var(--genre)">
+      <h3>Genre</h3>
+      <p>Each song carries weighted genre tags. Tags are expanded up a small family tree, so "indie rock" also counts a little towards "rock". Rare tags get more weight than common ones (inverse document frequency), then two songs are compared with cosine similarity.</p>
+      <code class="formula">cos(idf-weighted tag vectors)</code>
+    </div>
+    <div class="feature" style="--c: var(--mood)">
+      <h3>Mood</h3>
+      <p>Moods are points on a valence (unhappy to happy) and arousal (calm to intense) plane. Nearby moods score high, so euphoric is close to happy and far from melancholic.</p>
+      <code class="formula">exp(-d&sup2; / 2&sigma;&sup2;), &sigma; = 0.75</code>
+    </div>
+    <div class="feature" style="--c: var(--tempo)">
+      <h3>Tempo</h3>
+      <p>Tempo is compared as a ratio, because 60 vs 70 BPM is a far bigger change than 160 vs 170. A song at half or double the speed still counts as a groove match, with a penalty.</p>
+      <code class="formula">exp(-d&sup2; / 2&sigma;&sup2;), d = |log&#8322;(a/b)|, &sigma; = 0.12</code>
+    </div>
+    <div class="feature" style="--c: var(--decade)">
+      <h3>Decade</h3>
+      <p>Release years that are close together sound like they belong to the same era. Similarity fades smoothly with the gap instead of jumping at decade boundaries.</p>
+      <code class="formula">exp(-&Delta;years&sup2; / 2&sigma;&sup2;), &sigma; = 12</code>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h2>Blending</h2>
+    <p>The score for a pair of songs is the weighted average of whichever comparisons are available for both. If a song has no tempo or year, that comparison is skipped and the remaining weights are rescaled, with a small penalty so complete matches win ties. New or sparsely tagged songs can still be recommended.</p>
+    <p>With several seed songs, the score is the average across seeds (<i>Blend them</i>) or the best single match (<i>Closest to any</i>).</p>
+
+    <h2>Variety</h2>
+    <p>A plain top-ten often returns an artist's whole album. NextTrack re-ranks with Maximal Marginal Relevance: each pick is scored by relevance minus similarity to what is already chosen, scaled by the Variety slider. A per-artist limit applies on top.</p>
+
+    <h2>Likes and skips</h2>
+    <p>When "Learn from my likes and skips" is on, liked songs join the seeds at half weight. Skipped songs disappear and songs that resemble them are pushed down.</p>
+
+    <h2>Reasons</h2>
+    <p>The coloured bar under each result shows how many points each feature contributed. The sentence beneath is generated from the same numbers: shared tags, mood distance, tempo gap and era.</p>
+
+    <h2>Listening</h2>
+    <p>NextTrack doesn't host or stream audio &mdash; it has no licence to, and neither Last.fm nor MusicBrainz provides playable tracks. The play icon next to a result opens a YouTube search for the title and artist in a new tab, so you're always one click from actually hearing it.</p>
+
+    <h2>Where the data comes from</h2>
+    <ul>
+      <li><b>Demo catalogue:</b> a hand-curated CSV of well-known songs with approximate BPM, year, mood and genre tags. Treat the values as illustrative.</li>
+      <li><b>Last.fm:</b> genre tags, listener counts and similar-track lists (used as evaluation ground truth).</li>
+      <li><b>MusicBrainz:</b> release years and identifiers.</li>
+      <li><b>Mood</b> is inferred from tag words such as "chill" or "melancholy". <b>Tempo</b> is not provided by either service, so imported songs have none unless you add it.</li>
+    </ul>
+
+    <h2>Limits worth knowing</h2>
+    <ul>
+      <li>Content-based similarity finds songs that sound alike on paper. It cannot know that two very different songs share a fan base.</li>
+      <li>Tags follow what listeners write, so they lean towards Western, English-language music.</li>
+      <li>Mood is one label per song, which flattens songs that change character.</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

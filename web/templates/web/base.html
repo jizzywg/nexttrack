@@ -1,0 +1,49 @@
+{% load static %}<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}NextTrack{% endblock %}</title>
+  <meta name="description" content="Pick a few songs and NextTrack lines up what to play next, with the reasons why.">
+  <meta name="theme-color" content="#14122b">
+  <link rel="icon" href="{% static 'web/img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'web/css/nexttrack.css' %}">
+  {% block styles %}{% endblock %}
+</head>
+<body data-api="{% url 'api-root' %}" data-discover="{% url 'web:discover' %}" data-page="{{ active }}">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="wordmark" href="{% url 'web:landing' %}" aria-label="NextTrack home">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="14" fill="none" stroke="#39336a" stroke-width="2"/>
+        <circle cx="16" cy="16" r="9" fill="none" stroke="#39336a" stroke-width="2"/>
+        <path d="M11.5 10.5v11l7.5-5.5z" fill="#f0ecff"/>
+        <rect x="20.5" y="10.5" width="2.5" height="11" rx="1.25" fill="#ff7a59"/>
+      </svg>
+      NextTrack
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="{% url 'web:discover' %}"{% if active == 'discover' %} aria-current="page"{% endif %}>Discover</a>
+      <a href="{% url 'web:library' %}"{% if active == 'library' %} aria-current="page"{% endif %}>Library</a>
+      <a href="{% url 'web:evaluation' %}"{% if active == 'evaluation' %} aria-current="page"{% endif %}>Evaluation</a>
+      <a href="{% url 'web:docs' %}"{% if active == 'docs' %} aria-current="page"{% endif %}>API</a>
+      <a href="{% url 'web:method' %}"{% if active == 'method' %} aria-current="page"{% endif %}>Method</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <p>NextTrack recommends music from genre tags, mood, tempo and release decade.</p>
+    <p><a href="{% url 'api-root' %}">API root</a></p>
+  </footer>
+
+  <script src="{% static 'web/js/core.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

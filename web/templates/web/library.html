@@ -1,0 +1,47 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block title %}Library | NextTrack{% endblock %}
+
+{% block content %}
+<div class="page">
+  <header>
+    <h1>Library</h1>
+    <p class="intro">Everything NextTrack can recommend from. Filter by genre, mood or decade, then jump straight to the songs that sound like one you pick.</p>
+  </header>
+
+  <form class="filters" id="filters" onsubmit="return false">
+    <label class="stack wide" for="f-q"><span>Search</span>
+      <input id="f-q" class="field" type="search" placeholder="Song, artist or album" autocomplete="off">
+    </label>
+    <label class="stack" for="f-genre"><span>Genre</span>
+      <select id="f-genre" class="field"><option value="">Any genre</option></select>
+    </label>
+    <label class="stack" for="f-mood"><span>Mood</span>
+      <select id="f-mood" class="field"><option value="">Any mood</option></select>
+    </label>
+    <label class="stack" for="f-decade"><span>Decade</span>
+      <select id="f-decade" class="field"><option value="">Any decade</option></select>
+    </label>
+    <label class="stack" for="f-order"><span>Sort by</span>
+      <select id="f-order" class="field">
+        <option value="artist">Artist</option>
+        <option value="title">Title</option>
+        <option value="-year">Newest</option>
+        <option value="year">Oldest</option>
+        <option value="tempo">Slowest</option>
+        <option value="-tempo">Fastest</option>
+      </select>
+    </label>
+  </form>
+  <p class="filters-clear"><button type="button" class="link-quiet" id="clear-filters" hidden>Clear filters</button></p>
+
+  <div class="list-meta"><span id="count" role="status">Loading...</span><span class="muted">Add a track to your Blend or Radio selection, or find similar songs.</span></div>
+  <p id="library-message" class="muted" role="status" aria-live="polite"></p>
+  <ul id="rows"></ul>
+  <div class="more"><button type="button" class="btn" id="more" hidden>Show more</button></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'web/js/library.js' %}"></script>
+{% endblock %}

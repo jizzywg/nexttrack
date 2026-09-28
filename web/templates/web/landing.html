@@ -1,0 +1,70 @@
+{% extends "web/base.html" %}
+{% load static %}
+{% block title %}NextTrack | Your next song, and exactly why{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'web/css/landing.css' %}">{% endblock %}
+
+{% block content %}
+<section class="lp-hero" aria-labelledby="lp-title">
+  <div class="lp-wall" id="lp-wall" aria-hidden="true"></div>
+  <div class="lp-hero-inner">
+    <h1 id="lp-title">Your next song, and exactly why.</h1>
+    <p class="lp-lede">Pick a song you love. NextTrack finds what should play after it and shows how every match was scored on genre, mood, tempo and era.</p>
+    <div class="lp-actions">
+      <a class="btn btn-primary lp-btn" href="{% url 'web:discover' %}">Start with a song</a>
+      <a class="btn lp-btn lp-btn-glass" href="{% url 'web:method' %}">See how it scores</a>
+    </div>
+    <p class="lp-count" id="lp-count"></p>
+  </div>
+</section>
+
+<section class="lp-section" aria-labelledby="lp-demo-h">
+  <div class="lp-section-head">
+    <h2 id="lp-demo-h">A match, made just now</h2>
+    <p>A song picked at random from the catalogue and scored live. Each bar shows what the match was built from.</p>
+  </div>
+  <div class="lp-demo">
+    <div class="lp-seed" id="lp-seed"></div>
+    <div class="lp-demo-results">
+      <ul class="lp-legend">
+        <li><span class="lp-key" style="background:var(--genre)"></span>Genre</li>
+        <li><span class="lp-key" style="background:var(--mood)"></span>Mood</li>
+        <li><span class="lp-key" style="background:var(--tempo)"></span>Tempo</li>
+        <li><span class="lp-key" style="background:var(--decade)"></span>Decade</li>
+      </ul>
+      <ol class="lp-matches" id="lp-matches" aria-live="polite"></ol>
+      <div class="lp-demo-actions">
+        <button type="button" class="btn" id="lp-another">Try another song</button>
+        <a class="btn" id="lp-open" href="{% url 'web:discover' %}">Open in Discover</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="lp-section" id="lp-chart-section" aria-labelledby="lp-chart-h">
+  <div class="lp-section-head">
+    <h2 id="lp-chart-h">Most listened worldwide</h2>
+    <p>Ranked by each song's real-world Last.fm listener count, a global measure unrelated to how many tracks you've imported. Select a song to see what goes with it.</p>
+  </div>
+  <ol class="lp-chart" id="lp-chart"></ol>
+</section>
+
+<section class="lp-section lp-close" aria-labelledby="lp-close-h">
+  <h2 id="lp-close-h">Four things decide every match. You choose how much each one counts.</h2>
+  <div class="lp-weights" role="img" aria-label="Starting weights: genre 45%, mood 25%, tempo 15%, decade 15%">
+    <span style="flex:45;background:var(--genre)"></span>
+    <span style="flex:25;background:var(--mood)"></span>
+    <span style="flex:15;background:var(--tempo)"></span>
+    <span style="flex:15;background:var(--decade)"></span>
+  </div>
+  <ul class="lp-weights-legend" aria-hidden="true">
+    <li><span class="lp-key" style="background:var(--genre)"></span>Genre <b>45%</b></li>
+    <li><span class="lp-key" style="background:var(--mood)"></span>Mood <b>25%</b></li>
+    <li><span class="lp-key" style="background:var(--tempo)"></span>Tempo <b>15%</b></li>
+    <li><span class="lp-key" style="background:var(--decade)"></span>Decade <b>15%</b></li>
+  </ul>
+  <p class="lp-weights-note">That's the starting mix. Drag the sliders in Discover to change it.</p>
+  <a class="btn btn-primary lp-btn" href="{% url 'web:discover' %}">Start with a song</a>
+</section>
+{% endblock %}
+
+{% block scripts %}<script src="{% static 'web/js/landing.js' %}"></script>{% endblock %}
